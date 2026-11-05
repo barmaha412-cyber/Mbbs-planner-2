@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#122238">
+<title>Final Year MBBS Planner</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#0d1726;--panel:#17263a;--card:#20334b;--text:#f3f6fb;--muted:#a8b7ca;--line:#30445e;--accent:#5ce0ad;--accent2:#8cb8ff;--danger:#ff8b8b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:24px max(18px,calc((100vw - 1050px)/2));background:linear-gradient(125deg,#123b42,#17263a 65%);border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:clamp(22px,4vw,30px)}header p{margin:6px 0 0;color:#c1d3df}
+main{max-width:1050px;margin:auto;padding:16px}.tabs{display:flex;gap:8px;overflow:auto;padding:8px 0 16px}
+button,.btn{border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--card);color:var(--text);cursor:pointer;font-weight:600}
+button.active,.primary{background:var(--accent);color:#10251e;border-color:var(--accent)}
+button:focus,input:focus,select:focus,textarea:focus{outline:2px solid var(--accent2);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.stat{background:var(--card);border-radius:12px;padding:14px}.stat b{display:block;font-size:25px;color:var(--accent)}
+.muted,small{color:var(--muted)}h2{font-size:19px;margin:0 0 12px}h3{font-size:16px;margin:8px 0}
+.progress{height:9px;border-radius:99px;background:#34465e;overflow:hidden}.bar{height:100%;background:var(--accent);width:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}
+label{display:block;color:var(--muted);font-size:13px;margin:9px 0 4px}
+input,select,textarea{width:100%;background:#0e1a2a;border:1px solid var(--line);border-radius:9px;padding:11px;color:var(--text)}
+textarea{min-height:100px;resize:vertical}.field{flex:1;min-width:180px}
+.task{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border:0}.task input{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent);margin-top:2px}
+.task.done span{text-decoration:line-through;color:var(--muted)}
+.time{color:var(--accent);font-weight:700;min-width:125px;font-size:13px}
+.day{width:100%;text-align:left;margin:5px 0}.daybody{display:none;padding:8px 12px 12px}.daybody.open{display:block}
+.subject-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pill{font-size:12px;color:var(--accent);border:1px solid var(--line);padding:3px 8px;border-radius:99px}
+.hidden{display:none!important}.chapter{display:grid;grid-template-columns:20px 1fr;gap:9px;padding:8px 0;border-bottom:1px solid var(--line)}
+.chapter input{width:17px;height:17px;accent-color:var(--accent)}
+details{background:var(--card);border:1px solid var(--line);border-radius:11px;margin:8px 0;padding:12px}
+summary{cursor:pointer;font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+footer{text-align:center;color:var(--muted);padding:24px}
+@media(max-width:550px){main{padding:12px}.time{min-width:105px}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<header><h1>📚 Final Year MBBS Planner</h1><p>Study consistently • Track chapters • Practise clinically • Revise weekly</p></header>
+<main>
+<nav class="tabs" aria-label="Planner sections">
+<button class="active" data-tab="home">Dashboard</button><button data-tab="daily">Daily</button><button data-tab="weekly">Weekly</button><button data-tab="chapters">Chapter tracker</button><button data-tab="calendar">Exam & goals</button><button data-tab="notes">Notes & backup</button>
+</nav>
+
+<section id="home">
+<div class="grid">
+<div class="stat"><small>Today's checklist</small><b id="homeDaily">0/7</b><small>tasks complete</small></div>
+<div class="stat"><small>Chapter progress</small><b id="homeChapters">0%</b><small>across listed topics</small></div>
+<div class="stat"><small>Weekly tasks</small><b id="homeWeekly">0</b><small>checked off</small></div>
+<div class="stat"><small>Today's MCQs</small><b id="homeMcq">0</b><small>attempted</small></div>
+</div>
+<div class="panel"><div class="subject-head"><h2>Overall chapter completion</h2><span class="pill" id="chapterFraction">0/0</span></div><div class="progress"><div class="bar" id="homeBar"></div></div><p class="muted">The topic list is a starter checklist, not a substitute for your university syllabus. Add or edit topics as needed.</p></div>
+<div class="panel"><h2>Tonight's timetable</h2><div id="homeSchedule"></div></div>
+<div class="panel"><h2>Today's study focus</h2><p id="homeFocus" class="muted">Add your topics in the Daily section.</p></div>
+</section>
+
+<section id="daily" class="hidden">
+<div class="panel"><h2>Daily timetable · 7 PM–1 AM</h2><p class="muted">On night-duty days, shorten the plan and protect sleep.</p><div id="dailyTasks"></div><div class="progress"><div class="bar" id="dailyBar"></div></div><p id="dailyPct" class="muted"></p></div>
+<div class="panel"><h2>Today's targets</h2>
+<div class="row"><div class="field"><label>Main subject / topic</label><input id="mainTopic" placeholder="e.g. Anaemia in pregnancy"></div><div class="field"><label>Second subject / topic</label><input id="secondTopic" placeholder="e.g. Peptic ulcer"></div></div>
+<div class="row"><div class="field"><label>MCQs attempted</label><input id="mcqs" type="number" min="0" placeholder="0"></div><div class="field"><label>MCQs correct</label><input id="correct" type="number" min="0" placeholder="0"></div></div>
+<label>Clinical case / practical practiced</label><input id="clinical" placeholder="e.g. CVS examination / antenatal case">
+<button class="primary" id="saveDaily">Save today's targets</button></div>
+</section>
+
+<section id="weekly" class="hidden"><div class="panel"><h2>Day-wise subject plan</h2><p class="muted">This is a suggested rotation; move subjects around your postings and duties.</p><div id="weekList"></div></div>
+<div class="panel"><h2>Weekly review</h2><div class="row"><div class="field"><label>Mock test score</label><input id="mockScore" placeholder="e.g. 68/100"></div><div class="field"><label>Backlog topics cleared</label><input id="backlog" type="number" min="0" placeholder="0"></div></div><label>What needs more work next week?</label><textarea id="weeklyReflection" placeholder="Write weak areas, mistakes and next week's priorities"></textarea><button class="primary" id="saveWeekly">Save weekly review</button></div></section>
+
+<section id="chapters" class="hidden"><div class="panel"><h2>Chapter-wise syllabus tracker</h2><p class="muted">Starter topics organised by subject and standard textbook reference. Verify chapter coverage and sequence against the edition and syllabus used by your college.</p><div class="row"><div class="field"><label>Filter subject</label><select id="subjectFilter"><option value="all">All subjects</option></select></div><div class="field"><label>Search topic</label><input id="topicSearch" placeholder="Search chapters or topics"></div></div><div id="chapterList"></div></div>
+<div class="panel"><h2>Add your own topic</h2><div class="row"><div class="field"><label>Subject</label><select id="newSubject"></select></div><div class="field"><label>Topic / chapter</label><input id="newTopic" placeholder="Enter topic"></div></div><button class="primary" id="addTopic">Add topic</button></div></section>
+
+<section id="calendar" class="hidden"><div class="panel"><h2>Exam countdown & goals</h2><label>University exam date (if announced)</label><input id="examDate" type="date"><p id="countdown" class="muted">Set an exam date to see your countdown.</p><label>Monthly priority</label><textarea id="monthlyGoal" placeholder="e.g. Finish CVS, respiratory, general surgery and antenatal care"></textarea><button class="primary" id="saveGoals">Save goals</button></div>
+<div class="panel"><h2>Weekly targets</h2><ul><li>250–300 MCQs (adjust to your workload)</li><li>5–7 clinical cases or examination practices</li><li>3 written long answers</li><li>One timed mock test and error analysis</li><li>One backlog-clearing session</li></ul></div></section>
+
+<section id="notes" class="hidden"><div class="panel"><h2>Study notes & mistake log</h2><textarea id="notesText" placeholder="Record difficult concepts, incorrect MCQs, viva questions and pending topics..."></textarea><button class="primary" id="saveNotes">Save notes</button><p id="notesStatus" class="muted"></p></div>
+<div class="panel"><h2>Backup & restore</h2><p class="muted">Your data is saved in this browser on this device. Export a backup regularly, especially before clearing browser data.</p><div class="actions"><button class="primary" id="export">Export backup</button><label class="btn" for="importFile">Import backup</label><input id="importFile" type="file" accept="application/json" class="hidden"></div><button id="clearAll" class="secondary">Clear all planner data</button></div></section>
+</main>
+<footer>Final Year MBBS Planner · Personal study organiser</footer>
+<script>
+const subjects={
+"Medicine (Mathews)": ["Clinical approach, history and examination","Cardiovascular system","Respiratory system","Gastrointestinal and liver diseases","Neurology","Nephrology and electrolytes","Endocrinology and diabetes","Hematology and anemia","Infectious diseases","Rheumatology","Emergency medicine and poisoning"],
+"Surgery": ["Preoperative and postoperative care","Shock, fluids and electrolytes","Wounds and wound healing","Surgical infections","Breast","Thyroid and parathyroid","Gastrointestinal surgery","Hepatobiliary and pancreatic surgery","Hernia","Vascular surgery","Urology","Trauma and burns"],
+"Obstetrics (D.C. Dutta)": ["Maternal physiology and antenatal care","Normal labour","Mechanism and management of labour","High-risk pregnancy","Hypertensive disorders","Antepartum haemorrhage","Postpartum haemorrhage","Medical disorders in pregnancy","Puerperium","Obstetric emergencies"],
+"Gynaecology (D.C. Dutta)": ["Menstrual disorders","Amenorrhoea","Infertility","Contraception and family planning","Pelvic inflammatory disease","Endometriosis","Urogynaecology","Benign ovarian disorders","Cervical cancer","Endometrial and ovarian malignancy"],
+"Pediatrics (Ghai)": ["Newborn care and resuscitation","Neonatal jaundice","Prematurity and low birth weight","Growth and development","Nutrition and deficiencies","Immunisation","Pediatric infections","Respiratory diseases","Gastrointestinal diseases","Pediatric emergencies"],
+"ENT (Dhingra)": ["Ear anatomy and examination","Hearing loss","Otitis media","Vertigo","Nose and paranasal sinuses","Epistaxis","Allergic rhinitis","Pharynx and tonsils","Larynx","Head and neck tumors"],
+"Ophthalmology (Khurana)": ["Ocular anatomy and examination","Refractive errors","Conjunctiva and cornea","Cataract","Glaucoma","Uveitis","Retina","Neuro-ophthalmology","Squint","Ocular trauma"],
+"Orthopedics": ["Fracture principles and healing","Upper limb fractures","Lower limb fractures","Spine disorders","Bone and joint infections","Osteoarthritis","Bone tumors","Congenital and metabolic bone disorders"],
+"Dermatology": ["Approach to skin lesions","Eczema and dermatitis","Psoriasis","Bacterial and viral infections","Fungal infections","Leprosy","STIs and genital dermatoses"],
+"Psychiatry": ["Mental status examination","Mood disorders","Schizophrenia and psychosis","Anxiety disorders","Substance use disorders","Child and geriatric psychiatry"],
+"Anesthesia": ["Pre-anesthetic assessment","Airway management","General anesthesia","Spinal and epidural anesthesia","Monitoring","Pain management","Resuscitation"],
+"Radiology": ["Chest X-ray approach","Abdominal X-ray","Musculoskeletal X-rays","CT basics","MRI basics","Ultrasound basics"]
+};
+const schedule=[["7:00–8:00 PM","Previous topic revision"],["8:00–10:00 PM","Main subject theory"],["10:00–10:15 PM","Break"],["10:15–11:15 PM","Second subject theory"],["11:15 PM–12:15 AM","Clinical cases / practicals"],["12:15–12:45 AM","30–40 MCQs"],["12:45–1:00 AM","Quick revision and plan"]];
+const week=[
+["Monday","Medicine + ENT",["Medicine theory topic","Medicine clinical case","ENT theory topic","ENT instruments / signs"]],
+["Tuesday","Surgery + Medicine",["Surgery theory topic","Surgical instrument / procedure","Medicine topic","MCQs"]],
+["Wednesday","OBG + Surgery",["Obstetrics topic","Gynaecology topic","Surgery topic","OBG clinical case"]],
+["Thursday","Pediatrics + revision",["Neonatology topic","Growth and development","Immunisation schedule","Pediatrics MCQs"]],
+["Friday","Medicine + Ophthalmology",["Medicine topic","Medicine clinical examination","Ophthalmology topic","Eye examination"]],
+["Saturday","Surgery + OBG",["Surgery topic","Surgery practical","OBG topic","Long-answer practice"]],
+["Sunday","Weekly revision + minor subjects",["Revise all six major subjects","Orthopedics / Dermatology / Psychiatry","Anesthesia / Radiology","100-question mock test","Analyse mistakes and plan next week"]]
+];
+const KEY="mbbsPlannerV2";
+const fresh=()=>({daily:{},dailyDate:"",topics:{},weekly:{},chapters:{},custom:[],notes:"",examDate:"",monthlyGoal:"",mockScore:"",backlog:"",weeklyReflection:""});
+let data=load();
+function load(){try{return {...fresh(),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch(e){return fresh()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+const $=id=>document.getElementById(id);
+const todayKey=()=>new Date().toLocaleDateString("en-CA");
+function ensureDay(){if(data.dailyDate!==todayKey()){data.daily={};data.dailyDate=todayKey();data.topics={};save()}}
+ensureDay();
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("main section").forEach(s=>s.classList.add("hidden"));$(b.dataset.tab).classList.remove("hidden");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b))});
+function checkRow(label,checked,onchange,extra=""){return `<label class="task ${checked?"done":""}"><input type="checkbox" ${checked?"checked":""} ${extra} onchange="${onchange}"><span>${label}</span></label>`}
+function renderDaily(){
+ $("dailyTasks").innerHTML=schedule.map((x,i)=>`<div class="task ${data.daily[i]?"done":""}"><input type="checkbox" ${data.daily[i]?"checked":""} data-daily="${i}"><span class="time">${x[0]}</span><span>${x[1]}</span></div>`).join("");
+ document.querySelectorAll("[data-daily]").forEach(el=>el.onchange=()=>{data.daily[el.dataset.daily]=el.checked;save();renderAll()});
+ $("mainTopic").value=data.topics.main||"";$("secondTopic").value=data.topics.second||"";$("mcqs").value=data.topics.mcqs||"";$("correct").value=data.topics.correct||"";$("clinical").value=data.topics.clinical||"";
+ let n=Object.values(data.daily).filter(Boolean).length,p=Math.round(n/7*100);$("dailyBar").style.width=p+"%";$("dailyPct").textContent=`${n}/7 completed · ${p}%`;
+}
+$("saveDaily").onclick=()=>{data.topics={main:$("mainTopic").value,second:$("secondTopic").value,mcqs:$("mcqs").value,correct:$("correct").value,clinical:$("clinical").value};save();renderAll();alert("Today's targets saved.")};
+function renderWeek(){
+ $("weekList").innerHTML=week.map((d,i)=>`<details><summary>${d[0]} · ${d[1]}</summary>${d[2].map((t,j)=>{let k=i+"_"+j;return `<label class="task ${data.weekly[k]?"done":""}"><input type="checkbox" data-week="${k}" ${data.weekly[k]?"checked":""}><span>${t}</span></label>`}).join("")}</details>`).join("");
+ document.querySelectorAll("[data-week]").forEach(el=>el.onchange=()=>{data.weekly[el.dataset.week]=el.checked;save();renderAll()});
+ $("mockScore").value=data.mockScore;$("backlog").value=data.backlog;$("weeklyReflection").value=data.weeklyReflection;
+}
+$("saveWeekly").onclick=()=>{data.mockScore=$("mockScore").value;data.backlog=$("backlog").value;data.weeklyReflection=$("weeklyReflection").value;save();alert("Weekly review saved.")};
+function allTopics(){let a=[];Object.entries(subjects).forEach(([s,ts])=>ts.forEach((t,i)=>a.push({s,t,id:s+"_"+i})));data.custom.forEach((x,i)=>a.push({...x,id:"custom_"+i}));return a}
+function renderChapters(){
+ let filter=$("subjectFilter").value||"all",q=($("topicSearch").value||"").toLowerCase();
+ $("chapterList").innerHTML="";
+ let grouped={};allTopics().filter(x=>(filter==="all"||x.s===filter)&&(!q||(x.t+" "+x.s).toLowerCase().includes(q))).forEach(x=>(grouped[x.s]??=[]).push(x));
+ Object.entries(grouped).forEach(([s,items])=>{let d=document.createElement("details");d.open=filter!=="all"||!!q;let done=items.filter(x=>data.chapters[x.id]).length;d.innerHTML=`<summary>${s} <span class="pill">${done}/${items.length}</span></summary>`+items.map(x=>`<label class="chapter"><input type="checkbox" data-chapter="${encodeURIComponent(x.id)}" ${data.chapters[x.id]?"checked":""}><span>${escapeHtml(x.t)} ${x.id.startsWith("custom_")?'<small> · Custom</small>':""}</span></label>`).join("");$("chapterList").appendChild(d)});
+ document.querySelectorAll("[data-chapter]").forEach(el=>el.onchange=()=>{data.chapters[decodeURIComponent(el.dataset.chapter)]=el.checked;save();renderAll()});
+ let total=allTopics().length,done=allTopics().filter(x=>data.chapters[x.id]).length,p=total?Math.round(done/total*100):0;
+ $("homeChapters").textContent=p+"%";$("chapterFraction").textContent=done+"/"+total;$("homeBar").style.width=p+"%";
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderSubjectsOptions(){["subjectFilter","newSubject"].forEach(id=>$(id).innerHTML=(id==="subjectFilter"?'<option value="all">All subjects</option>':"")+Object.keys(subjects).map(s=>`<option>${s}</option>`).join(""))}
+$("subjectFilter").onchange=renderChapters;$("topicSearch").oninput=renderChapters;
+$("addTopic").onclick=()=>{let s=$("newSubject").value,t=$("newTopic").value.trim();if(!t)return alert("Enter a topic first.");data.custom.push({s,t});$("newTopic").value="";save();renderAll()};
+function renderGoals(){$("examDate").value=data.examDate;$("monthlyGoal").value=data.monthlyGoal;updateCountdown()}
+function updateCountdown(){if(!data.examDate){$("countdown").textContent="Set an exam date to see your countdown.";return}let days=Math.ceil((new Date(data.examDate+"T00:00:00")-new Date(new Date().toDateString()))/86400000);$("countdown").textContent=days>=0?`${days} days until your exam.`:`Exam date was ${Math.abs(days)} days ago.`}
+$("saveGoals").onclick=()=>{data.examDate=$("examDate").value;data.monthlyGoal=$("monthlyGoal").value;save();renderGoals()};
+$("saveNotes").onclick=()=>{data.notes=$("notesText").value;save();$("notesStatus").textContent="Saved on this device."};
+$("export").onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mbbs-planner-backup.json";a.click();URL.revokeObjectURL(a.href)};
+$("importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let imported=JSON.parse(await f.text());data={...fresh(),...imported};save();location.reload()}catch(err){alert("That backup file could not be read.")}};
+$("clearAll").onclick=()=>{if(confirm("Delete all planner data from this browser? Export a backup first if needed.")){localStorage.removeItem(KEY);location.reload()}};
+function renderAll(){
+ renderDaily();renderWeek();renderChapters();renderGoals();
+ $("notesText").value=data.notes||"";
+ let dn=Object.values(data.daily).filter(Boolean).length;
+ $("homeDaily").textContent=dn+"/7";
+ $("homeWeekly").textContent=Object.values(data.weekly).filter(Boolean).length;
+ $("homeMcq").textContent=data.topics.mcqs||0;
+ $("homeFocus").textContent=[data.topics.main,data.topics.second,data.topics.clinical].filter(Boolean).join(" · ")||"Add your topics in the Daily section.";
+ $("homeSchedule").innerHTML=schedule.map(x=>`<div class="task"><span class="time">${x[0]}</span><span>${x[1]}</span></div>`).join("");
+}
+renderSubjectsOptions();renderAll();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
